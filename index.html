@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="tester">
+
+</div>
+<script>
+
+    fetch('FCC Solomon Data Archive.xlsm').then(res => res.arrayBuffer()).then(ab => {
+        const wb = XLSX.read(ab, {type: "array"});
+        const sh = wb.Sheets['Data Pull'];
+        const _data = XLSX.utils.sheet_to_json(sh);
+        const desc = _data.shift();
+        const series = Object.keys(desc).filter(d=>d!=='tag');
+        const seriesInfo =series.map(key=>({
+            x:[],
+            y:[],
+            desc:desc[key],
+            name: desc[key],
+            key: key,
+            connectgaps: false
+        }));
+        const UOM = _data.shift();
+        _data.forEach(d=>{
+            seriesInfo.forEach(s=>{
+                s.y.push(typeof d[s.key]=='number' ? d[s.key]: null);
+                s.x.push(ExcelDateToJSDate(d.tag));
+            })
+        })
+        TESTER = document.getElementById('tester');
+        Plotly.newPlot( TESTER, seriesInfo, {
+            title: 'FCC Solomon Data Archive',
+            showlink:true} );
+
+    })
+    function ExcelDateToJSDate(serial) {
+        const timeObject = XLSX.SSF.parse_date_code(serial)
+
+        return new Date(timeObject.y, timeObject.m, timeObject.d, timeObject.H, timeObject.M, timeObject.S);
+    }
+</script>
+</body>
+</html>
