@@ -6,6 +6,7 @@
     <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="tester">
@@ -14,6 +15,10 @@
 <div id="Heatmap">
 
 </div>
+<div id="Heatmap2">
+
+</div>
+<script src="correlation.js"></script>
 <script>
 
     fetch('FCC Solomon Data Archive.xlsm').then(res => res.arrayBuffer()).then(ab => {
@@ -28,6 +33,7 @@
             desc:desc[key],
             name: desc[key],
             key: key,
+            enable:true,
             connectgaps: false
         }));
         const UOM = _data.shift();
@@ -52,7 +58,9 @@
         yValues = seriesInfo.map(s=>s.name);
         zValues = seriesInfo.map(s=>{
             s.scale = d3.scaleLinear().domain(d3.extent(s.y));
-            return _data.map(d=>s.scale(d[s.key]))
+            let v = _data.map(d=>s.scale(d[s.key]));
+            v.s = s;
+            return v;
         })
         Heatmap = document.getElementById('Heatmap');
         Plotly.newPlot( Heatmap, [{
@@ -63,14 +71,124 @@
             // colorscale: colorscaleValue,
             showscale: false
         }], {
-            margin:{l:200},
+            margin:{l:200},height: 800,
+            yaxis:{type:'category',tickmode: "linear",tick0: 0, dtick:1},
             title: 'FCC Solomon Data Archive',
             showlink:true} );
+
+        function getHeatMaporder(_zValues) {
+            let variableCorrelation = [];
+            getcorrelation({'data': transpose(_zValues)}, seriesInfo);
+            yValues = seriesInfo.sort((a,b)=>a.order-b.order).map(s=>s.name);
+            zValues = _zValues.slice().sort((a,b)=>a.s.order-b.s.order)
+            Heatmap = document.getElementById('Heatmap');
+            Plotly.newPlot(Heatmap2, [{
+                x: xValues,
+                y: yValues,
+                z: zValues,
+                type: 'heatmap',
+                // colorscale: colorscaleValue,
+                showscale: false
+            }], {
+                margin: {l: 200},height: 800,
+                yaxis:{type:'category',tickmode: "linear",tick0: 0, dtick:1},
+                title: 'FCC Solomon Data Archive',
+                showlink: true
+            });
+            return variableCorrelation;
+        }
+
+// order
+        const variableCorrelation = getHeatMaporder(zValues);
+        debugger
     })
     function ExcelDateToJSDate(serial) {
         const timeObject = XLSX.SSF.parse_date_code(serial)
 
         return new Date(timeObject.y, timeObject.m, timeObject.d, timeObject.H, timeObject.M, timeObject.S);
+    }
+    function getcorrelation(data,seriesInfo){
+        variableCorrelation = correlationCal(data,seriesInfo.map(d=>d.enable),seriesInfo);
+        orderByCorrelation(seriesInfo);
+    }
+    function correlationCal(tsnedata,serviceEnable,seriesInfo){
+        let data = _.unzip(_.flatten(_.keys(tsnedata).map(e=>tsnedata[e].map(e=>e)),1));
+        let indexActiveService =[];
+        const activeservice = seriesInfo.filter((s,si)=>{
+            if(serviceEnable[si])
+                indexActiveService.push(si);
+            return serviceEnable[si]});
+        const n = activeservice.length;
+        let simMatrix = [];
+        for (let i = 0;i<n; i++){
+            let temp_arr = [];
+            // temp_arr.total = 0;
+            for (let j=i+1; j<n; j++){
+                let tempval = pearsonCorcoef(data[indexActiveService[i]],data[indexActiveService[j]]);
+                // temp_arr.total += tempval;
+                temp_arr.push(tempval)
+            }
+            // for (let j=0;j<i;j++)
+            //     temp_arr.total += simMatrix[j][i-1-j];
+            temp_arr.name = seriesInfo[indexActiveService[i]].key;
+            temp_arr.index = i;
+            temp_arr.index_s = indexActiveService[i];
+            simMatrix.push(temp_arr)
+        }
+        return simMatrix;
+    }
+    function transpose(a) {
+        return Object.keys(a[0]).map(function(c) {
+            return a.map(function(r) { return r[c]; });
+        });
+    }
+    function orderByCorrelation(seriesInfo){
+        let simMatrix = variableCorrelation.filter(v=>(v.total=0,seriesInfo[v.index].enable));
+        const orderMatrix = simMatrix.map(d=>d.index);
+        let mapIndex = [];
+        simMatrix.forEach((v,i)=>{
+            mapIndex.push(i);
+            orderMatrix.forEach((j,jj)=>{
+                if (i!==j) {
+                    if (j-i>0)
+                        v.total += v[j-i-1];
+                    else
+                        v.total += simMatrix[jj][i-1-j];
+                }
+            })
+        });
+        mapIndex.sort((a,b)=> -simMatrix[a].total+simMatrix[b].total);
+
+        let current_index = mapIndex.pop();
+        let orderIndex = [simMatrix[current_index].index];
+
+        do{
+            let maxL = -Infinity;
+            let maxI = 0;
+            mapIndex.forEach((d)=>{
+                let temp;
+                if (orderMatrix[d]>simMatrix[current_index].index ){
+                    temp = simMatrix[current_index][orderMatrix[d]-simMatrix[current_index].index -1];
+                }else{
+                    temp = simMatrix[d][simMatrix[current_index].index -orderMatrix[d]-1]
+                }
+                if (maxL<temp){
+                    maxL = temp;
+                    maxI = d;
+                }
+            });
+            orderIndex.push(simMatrix[maxI].index);
+            current_index = maxI;
+            mapIndex = mapIndex.filter(d=>d!=maxI);
+        } while(mapIndex.length);
+        orderIndex.forEach((o,i)=>{
+            seriesInfo[o].order = i;
+        });
+    }
+    function swap (a,indexa,indexb){
+        const temp = a[indexa];
+        a[indexa] = a[indexb];
+        a[indexb] = temp;
     }
 </script>
 </body>
