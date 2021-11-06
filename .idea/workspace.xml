@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2861d140-2e6f-43c6-9d7e-ffae2504c155" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/correlation.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forcedirectedlayout.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/d3-simple-slider.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/setting.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
@@ -10,6 +12,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -23,10 +32,11 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\STORE\nvtngan\project\github\N rep\QuickPlot\lib" />
       <recent name="C:\STORE\nvtngan\project\github\N rep\QuickPlot" />
     </key>
   </component>
@@ -52,11 +62,18 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636157515979</updated>
-      <workItem from="1636157517598" duration="4923000" />
+      <workItem from="1636157517598" duration="10381000" />
+      <workItem from="1636186380244" duration="2830000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="549" y="168" key="FileChooserDialogImpl" timestamp="1636178787998">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1636178787998" />
   </component>
 </project>

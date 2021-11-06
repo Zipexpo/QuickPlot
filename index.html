@@ -7,6 +7,8 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
+    <!--for the slider-->
+    <script src="lib/d3-simple-slider.js"></script>
 </head>
 <body>
 <div id="tester">
@@ -15,10 +17,16 @@
 <div id="Heatmap">
 
 </div>
+<div class="roundedBorder" id="corcoefGraphDiv" style="width: 100%">
+    <div id="corcoefGraphTitle">Correlation graph</div>
+    <svg id="corcoefGraph" style="width: 100%; height:500px;"></svg>
+</div>
 <div id="Heatmap2">
 
 </div>
+<script src="setting.js"></script>
 <script src="correlation.js"></script>
+<script src="forcedirectedlayout.js"></script>
 <script>
 
     fetch('FCC Solomon Data Archive.xlsm').then(res => res.arrayBuffer()).then(ab => {
@@ -27,14 +35,15 @@
         const _data = XLSX.utils.sheet_to_json(sh);
         const desc = _data.shift();
         const series = Object.keys(desc).filter(d=>d!=='tag');
-        const seriesInfo =series.map(key=>({
+        seriesInfo =series.map(key=>({
             x:[],
             y:[],
             desc:desc[key],
             name: desc[key],
             key: key,
             enable:true,
-            connectgaps: false
+            connectgaps: false,
+            corr:{},
         }));
         const UOM = _data.shift();
         _data.forEach(d=>{
@@ -77,9 +86,9 @@
             showlink:true} );
 
         function getHeatMaporder(_zValues) {
-            let variableCorrelation = [];
+            variableCorrelation = [];
             getcorrelation({'data': transpose(_zValues)}, seriesInfo);
-            yValues = seriesInfo.sort((a,b)=>a.order-b.order).map(s=>s.name);
+            yValues = seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
             zValues = _zValues.slice().sort((a,b)=>a.s.order-b.s.order)
             Heatmap = document.getElementById('Heatmap');
             Plotly.newPlot(Heatmap2, [{
@@ -99,7 +108,8 @@
         }
 
 // order
-        const variableCorrelation = getHeatMaporder(zValues);
+        getHeatMaporder(zValues);
+        drawGraph();
         debugger
     })
     function ExcelDateToJSDate(serial) {
@@ -126,6 +136,7 @@
             for (let j=i+1; j<n; j++){
                 let tempval = pearsonCorcoef(data[indexActiveService[i]],data[indexActiveService[j]]);
                 // temp_arr.total += tempval;
+                seriesInfo[indexActiveService[i]].corr[indexActiveService[j]]  = tempval;
                 temp_arr.push(tempval)
             }
             // for (let j=0;j<i;j++)
@@ -191,5 +202,6 @@
         a[indexb] = temp;
     }
 </script>
+
 </body>
 </html>
