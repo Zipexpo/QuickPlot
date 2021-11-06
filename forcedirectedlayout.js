@@ -320,6 +320,7 @@ function updatetextLayer(g,data,isInBond,{x=0,y=0,k=1}){
             temp = [temp.x, temp.y];
             temp.index = pi;
             temp.name = p.text;
+            temp.hasLink = p.relatedLink.length;
             pointData.push(temp);
         }
     });
@@ -343,7 +344,7 @@ function updatetextLayer(g,data,isInBond,{x=0,y=0,k=1}){
                     : orient.left);
         })
         .attr("transform", ([d]) => `translate(${d})`)
-        .style('opacity',([d])=>d.relatedLink.length?0.6:0.2)
+        .style('opacity',([d])=>d.hasLink?0.6:0.2)
         .text(([, , name]) => name);
     function getpos(p){
         return {x:(p.x*k +x),y:(p.y*k+y)}
