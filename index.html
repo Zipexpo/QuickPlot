@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div id="tester">
+
+</div>
+<div id="Heatmap">
 
 </div>
 <script>
@@ -29,15 +33,39 @@
         const UOM = _data.shift();
         _data.forEach(d=>{
             seriesInfo.forEach(s=>{
-                s.y.push(typeof d[s.key]=='number' ? d[s.key]: null);
+                const value = typeof d[s.key]=='number' ? d[s.key]: null;
+                s.y.push(value);
                 s.x.push(ExcelDateToJSDate(d.tag));
             })
-        })
+        });
+
+        debugger
+        // console.log('time,'+seriesInfo.map(s=>s.key).join(',')+"\n"+_data.map(d=>[+ExcelDateToJSDate(d.tag),seriesInfo.map(s=>d[s.key]).join(',')].join(',')).join('/n'))
         TESTER = document.getElementById('tester');
         Plotly.newPlot( TESTER, seriesInfo, {
             title: 'FCC Solomon Data Archive',
             showlink:true} );
 
+
+        // heatmap
+        xValues = _data.map(d=>ExcelDateToJSDate(d.tag));
+        yValues = seriesInfo.map(s=>s.name);
+        zValues = seriesInfo.map(s=>{
+            s.scale = d3.scaleLinear().domain(d3.extent(s.y));
+            return _data.map(d=>s.scale(d[s.key]))
+        })
+        Heatmap = document.getElementById('Heatmap');
+        Plotly.newPlot( Heatmap, [{
+            x: xValues,
+            y: yValues,
+            z: zValues,
+            type: 'heatmap',
+            // colorscale: colorscaleValue,
+            showscale: false
+        }], {
+            margin:{l:200},
+            title: 'FCC Solomon Data Archive',
+            showlink:true} );
     })
     function ExcelDateToJSDate(serial) {
         const timeObject = XLSX.SSF.parse_date_code(serial)
