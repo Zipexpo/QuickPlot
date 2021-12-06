@@ -132,7 +132,7 @@
                 yaxis:{type:'category',tickvals: d3.range(0,seriesInfo.length),ticktext: seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name)},
                 title: 'FCC Solomon Data Archive',
                 showlink: true,
-                shapes:[{type:'rect',xref:'paper',yref:'y',x0:-0.001,x1:1.001,y0:len-0.2,y1:len-stm.length-1+0.2,line:{color:'red',width:3}}]
+                shapes:[{type:'rect',xref:'paper',yref:'y',x0:-0.001,x1:1.001,y0:len-0.2,y1:len-stm.length-1+0.2,line:{color:'black',width:3}}]
             });
             return variableCorrelation;
         }

@@ -118,7 +118,7 @@ function drawGraph() {
         .data(nodes_data)
         .enter()
         .append("circle")
-        .attr('r',graphNodeRadius).attr("fill",d=>d.text.match(/steam|stm/i)?'red': "steelblue")
+        .attr('r',graphNodeRadius).attr("fill",d=>d.text.match(/steam|stm/i)?'black': "steelblue")
         .attr("id", (d) => {
             return "img" + d.index;
         })
