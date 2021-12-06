@@ -64,7 +64,7 @@
 
         // heatmap
         xValues = _data.map(d=>ExcelDateToJSDate(d.tag));
-        yValues = seriesInfo.map(s=>s.name);
+        yValues = d3.range(0,seriesInfo.length);
         zValues = seriesInfo.map(s=>{
             s.scale = d3.scaleLinear().domain(d3.extent(s.y));
             let v = _data.map(d=>s.scale(d[s.key]));
@@ -81,14 +81,43 @@
             showscale: false
         }], {
             margin:{l:200},height: 800,
-            yaxis:{type:'category',tickmode: "linear",tick0: 0, dtick:1},
+            yaxis:{type:'category',tickvals: d3.range(0,seriesInfo.length),ticktext: seriesInfo.map(s=>s.name)},
             title: 'FCC Solomon Data Archive',
             showlink:true} );
+
+        // function getHeatMaporder(_zValues) {
+        //     variableCorrelation = [];
+        //     getcorrelation({'data': transpose(_zValues)}, seriesInfo);
+        //     yValues = d3.range(0,seriesInfo.length);//seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
+        //     zValues = _zValues.slice().sort((a,b)=>a.s.order-b.s.order)
+        //     Heatmap = document.getElementById('Heatmap');
+        //     Plotly.newPlot(Heatmap2, [{
+        //         x: xValues,
+        //         y: yValues,
+        //         z: zValues,
+        //         type: 'heatmap',
+        //         // colorscale: colorscaleValue,
+        //         showscale: false
+        //     }], {
+        //         margin: {l: 200},height: 800,
+        //         yaxis:{type:'category',tickvals: d3.range(0,seriesInfo.length),ticktext: seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name)},
+        //         title: 'FCC Solomon Data Archive',
+        //         showlink: true
+        //     });
+        //     return variableCorrelation;
+        // }
 
         function getHeatMaporder(_zValues) {
             variableCorrelation = [];
             getcorrelation({'data': transpose(_zValues)}, seriesInfo);
-            yValues = seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
+
+            //group
+            debugger
+            const stm = seriesInfo.filter(d=>d.desc.match(/steam|stm/i));
+            const len = seriesInfo.length;
+            stm.forEach((d,i)=>d.order = len+i);
+
+            yValues = d3.range(0,seriesInfo.length);//seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
             zValues = _zValues.slice().sort((a,b)=>a.s.order-b.s.order)
             Heatmap = document.getElementById('Heatmap');
             Plotly.newPlot(Heatmap2, [{
@@ -100,9 +129,10 @@
                 showscale: false
             }], {
                 margin: {l: 200},height: 800,
-                yaxis:{type:'category',tickmode: "linear",tick0: 0, dtick:1},
+                yaxis:{type:'category',tickvals: d3.range(0,seriesInfo.length),ticktext: seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name)},
                 title: 'FCC Solomon Data Archive',
-                showlink: true
+                showlink: true,
+                shapes:[{type:'rect',xref:'paper',yref:'y',x0:-0.001,x1:1.001,y0:len-0.2,y1:len-stm.length-1+0.2,line:{color:'red',width:3}}]
             });
             return variableCorrelation;
         }

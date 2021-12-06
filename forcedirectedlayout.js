@@ -110,7 +110,7 @@ function drawGraph() {
             return "clipPath" + d.index;
         })
         .append("circle")
-        .attr("fill", "black")
+        .attr("fill","black")
         .attr("r", graphNodeRadius);
 
     let plot = g.append("g")
@@ -118,8 +118,7 @@ function drawGraph() {
         .data(nodes_data)
         .enter()
         .append("circle")
-        .attr('r',graphNodeRadius)
-        .attr('fill','steelblue')
+        .attr('r',graphNodeRadius).attr("fill",d=>d.text.match(/steam|stm/i)?'red': "steelblue")
         .attr("id", (d) => {
             return "img" + d.index;
         })
