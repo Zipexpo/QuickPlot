@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2861d140-2e6f-43c6-9d7e-ffae2504c155" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/demo.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forcedirectedlayout_demo.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/forcedirectedlayout.js" beforeDir="false" afterPath="$PROJECT_DIR$/forcedirectedlayout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
@@ -29,12 +33,12 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\STORE\nvtngan\project\github\N rep\QuickPlot\lib" />
       <recent name="C:\STORE\nvtngan\project\github\N rep\QuickPlot" />
+      <recent name="C:\STORE\nvtngan\project\github\N rep\QuickPlot\lib" />
     </key>
   </component>
   <component name="ServiceViewManager">
@@ -63,7 +67,11 @@
       <workItem from="1636186380244" duration="6035000" />
       <workItem from="1637015538064" duration="4364000" />
       <workItem from="1637956136198" duration="5000" />
-      <workItem from="1638780705497" duration="2508000" />
+      <workItem from="1638780705497" duration="3107000" />
+      <workItem from="1638827649725" duration="1222000" />
+      <workItem from="1638974029146" duration="598000" />
+      <workItem from="1639068896047" duration="601000" />
+      <workItem from="1645480526248" duration="21761000" />
     </task>
     <servers />
   </component>
@@ -75,9 +83,13 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="468" y="203" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1637015688762" />
-    <state x="549" y="168" key="FileChooserDialogImpl" timestamp="1636178787998">
+    <state x="549" y="168" key="FileChooserDialogImpl" timestamp="1645530891774">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1636178787998" />
+    <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1645530891774" />
+    <state x="425" y="187" key="run.anything.popup" timestamp="1645487089008">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="425" y="187" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1645487089008" />
   </component>
 </project>

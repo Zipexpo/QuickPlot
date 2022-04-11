@@ -118,7 +118,7 @@ function drawGraph() {
         .data(nodes_data)
         .enter()
         .append("circle")
-        .attr('r',graphNodeRadius).attr("fill",d=>d.text.match(/steam|stm/i)?'black': "steelblue")
+        .attr('r',graphNodeRadius).attr("fill",d=>(d.text==='FUEL GAS TO CHG PREHTR')?'#7030A0':((d.text==='175# STEAM TO RISER')?'#77933C': "steelblue"))
         .attr("id", (d) => {
             return "img" + d.index;
         })
@@ -131,15 +131,28 @@ function drawGraph() {
         //
         // })
         .on("mouseover", function (d){
-            d3.select(this).attr("r", graphNodeRadius + mouseOverExpand);
+            plot.attr('opacity',0.3)
+            d3.select(this).attr('opacity',1).attr("r", graphNodeRadius + mouseOverExpand);
             d3.select("#clipPath" + d.index + " circle").attr("r", graphNodeRadius + mouseOverExpand);
             d3.select("#circle" + d.index).attr("r", graphNodeRadius + mouseOverExpand);
             d3.select("#label" + d.index).attr("dy", graphNodeRadius + mouseOverExpand);
+
+            const _d = d3.select(this).datum();
+            link.attr('opacity',0.05)
+            link.filter(l=>(l.source===_d)||(l.target===_d)).attr('opacity',1).each(function(d){
+                if (d.source===_d){
+                    d3.select('#img'+d.target.index).attr("opacity", 1);
+                }else{
+                    d3.select('#img'+d.source.index).attr("opacity", 1);
+                }
+            })
         }).on("mouseout", function(d){
             d3.select(this).attr("r", graphNodeRadius);
             d3.select("#clipPath" + d.index + " circle").attr("r", graphNodeRadius);
             d3.select("#circle" + d.index).attr("r", graphNodeRadius);
             d3.select("#label" + d.index).attr("dy", graphNodeRadius);
+            link.attr('opacity',null);
+            plot.attr('opacity',null)
         });
 
     // selectionCircle = g.append("g")
@@ -344,6 +357,7 @@ function updatetextLayer(g,data,isInBond,{x=0,y=0,k=1}){
         })
         .attr("transform", ([d]) => `translate(${d})`)
         .style('opacity',([d])=>d.hasLink?0.8:0.2)
+        .style('pointer-events','none')
         .text(([, , name]) => name);
     function getpos(p){
         return {x:(p.x*k +x),y:(p.y*k+y)}

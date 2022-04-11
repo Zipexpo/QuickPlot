@@ -22,12 +22,13 @@
     <svg id="corcoefGraph" style="width: 100%; height:500px;"></svg>
 </div>
 <button id="orderBtn">Toggle Order</button>
-<div id="Heatmap2">
-
+<div id="Heatmap2" style="position: relative">
+    <svg></svg>
+    <canvas style="position:absolute;top:0;left:0"></canvas>
 </div>
 <script src="setting.js"></script>
 <script src="correlation.js"></script>
-<script src="forcedirectedlayout.js"></script>
+<script src="forcedirectedlayout_demo.js"></script>
 <script>
 
     fetch('FCC Solomon Data Archive.xlsm').then(res => res.arrayBuffer()).then(ab => {
@@ -81,7 +82,6 @@
             // colorscale: colorscaleValue,
             showscale: false
         }]
-        debugger
         Plotly.newPlot( Heatmap, [{
             x: xValues,
             y: yValues,
@@ -95,36 +95,125 @@
             title: 'FCC Solomon Data Archive',
             showlink:true} );
 
-        function getHeatMaporder(_zValues,datanotOrder,yaxisnotOrder) {
+        function getHeatMaporder(_zValues) {
             variableCorrelation = [];
             getcorrelation({'data': transpose(_zValues)}, seriesInfo);
 
             //group
-            debugger
             const stm = seriesInfo.filter(d=>d.desc.match(/steam|stm/i));
             const len = seriesInfo.length;
             stm.forEach((d,i)=>d.order = len+i);
 
-            yValues = d3.range(0,seriesInfo.length);//seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
-            zValues = _zValues.slice().sort((a,b)=>a.s.order-b.s.order)
-            Heatmap = document.getElementById('Heatmap');
-            const dataOrder = [{
+            let yValues = _zValues.map(a=>a.s.order);//seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name);
+            let names = _zValues.map(a=>a.s.name);
+            let zValues = _zValues.slice();
+            const dataOrder = {
                 x: xValues,
                 y: yValues,
                 z: zValues,
-                type: 'heatmap',
-                // colorscale: colorscaleValue,
-                showscale: false
-            }]
+                names
+            }
             const yaxisOrder = {type:'category',tickvals: d3.range(0,seriesInfo.length),ticktext: seriesInfo.slice().sort((a,b)=>a.order-b.order).map(s=>s.name)}
-            Plotly.newPlot(Heatmap2, dataOrder, {
-                margin: {l: 200},height: 800,
-                yaxis:yaxisOrder,
-                title: 'FCC Solomon Data Archive',
-                showlink: true,
-                shapes:[{type:'rect',xref:'paper',yref:'y',x0:-0.001,x1:1.001,y0:len-0.2,y1:len-stm.length-1+0.2,line:{color:'black',width:3}}]
-            });
 
+            let width = 1500, height = 700,m={l:200,r:10,t:10,b:10}
+                canvas = d3.select('#Heatmap2 canvas').node(),
+                svg = d3.select('#Heatmap2 svg').node(),
+                ctx = canvas.getContext("2d");
+            let w = width-m.l-m.r;
+            let hh = height-m.b-m.t;
+            d3.select(canvas).attr("width", width).attr("height", height);
+            const svg_ = d3.select(svg).attr("width", width).attr("height", height);
+
+
+            let customNode = document.createElement("custom:cc"),
+                dataContainer = d3.select(customNode);
+
+
+            function drawCustom ({x,y,z,names}) {
+                const data = [];
+                const label = [];
+                y.forEach((d,i)=>{
+                    label.push([d,names[i]])
+                    x.forEach((xx,xi)=>{
+                        data.push([xx,d,z[i][xi],`${d}_${xx}`]);
+                    })
+                });
+                wm = Math.max(2,w/x.length);
+                hm = hh/y.length;
+                let xScale = d3.scaleLinear().domain(d3.extent(data,d=>d[0])).range([m.l,w+m.l]);
+                let yScale = d3.scaleOrdinal().domain(y.slice().sort((a,b)=>a-b)).range(y.map((d,i)=>hh-i*hm));
+                let transitionTime = 8000;
+                let colorScale = d3.scaleSequential(d3.interpolateRdYlBu).domain(d3.extent(data,d=>d[2]).reverse());
+                svg_.selectAll('text.yaxis').data(label,d=>d[1])
+                    .join('text')
+                    .attr("class", 'yaxis')
+                    .attr("x", m.l)
+                    .attr("text-anchor", 'end')
+                    .attr("font-size", 11)
+                    .attr("dy", 5.5)
+                    .text(d=>d[1])
+                    .transition()
+                    .duration(transitionTime)
+                    .attr("y", d=>yScale(d[0])+hm/2)
+                var u = dataContainer.selectAll("c").data(data,d=>d[3]);
+                u.enter()
+                    .append("c")
+                    .attr("width", wm)
+                    .attr("height", hm)
+                    .attr("x", d=>xScale(d[0]))
+                    .attr("y", d=>yScale(d[1]))
+                    .attr("fill", d=>colorScale(d[2])??'white');
+                u
+                    .transition()
+                    .duration(transitionTime)
+                    .attr("x", d=>xScale(d[0]))
+                    .attr("y", d=>yScale(d[1]))
+                    .attr("fill", d=>colorScale(d[2])??'white')
+
+                u.exit().transition()
+                    .duration(transitionTime)
+                    .attr("height", 0)
+                    .remove();
+            }
+
+            function drawCanvas () {
+                ctx.save();
+                ctx.clearRect(0, 0, w, hh);
+
+                dataContainer.selectAll("c").each(function (d) {
+                    let x = +this.getAttribute("x"),
+                        y = +this.getAttribute("y"),
+                        wi = +this.getAttribute("width"),
+                        hi = +this.getAttribute("height"),
+                        fill = this.getAttribute("fill");
+                    ctx.fillStyle = fill;
+                    ctx.fillRect(x,y,wi,hi);
+                });
+                ctx.restore();
+                //window.requestAnimationFrame(drawCanvas);
+            }
+
+            drawCustom(dataOrder);
+
+            var config = { attributes: true, childList: true, subtree: true };
+            var callback = function (mutationsList, observer) {
+                drawCanvas();
+            };
+            var observer = new MutationObserver(callback);
+            observer.observe(customNode, config);
+            debugger
+            // drawCanvas();
+            let isOrder = false;
+            d3.select('#orderBtn').on('click',()=>{
+                isOrder= (!isOrder);
+                d3.select('#orderBtn').html(isOrder?'Ordered by correlation coefficient':'Input order')
+                if (isOrder){
+                    drawCustom(dataOrder)
+                }else{
+                    drawCustom({...dataOrder,y:d3.range(0,seriesInfo.length),names:seriesInfo.map(d=>d.name)});
+                }
+                // drawCanvas();
+            })
             return variableCorrelation;
         }
 
